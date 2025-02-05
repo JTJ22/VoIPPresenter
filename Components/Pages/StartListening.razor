@@ -1,0 +1,36 @@
+﻿@page "/StartListening"
+@rendermode InteractiveServer
+@inject HandleListener listener
+
+<PageTitle>Start Listening</PageTitle>
+
+
+<div>
+    <label for="portConf">Enter an IP and port:</label>
+    <input id="portConf" type="text" name="portConf" size="30" placeholder="Port" @bind="_newPort" />
+    <input id="ipConf" type="text" name="ipConf" size="30" placeholder="IP" @bind="_ipAddress" />
+    <button class="btn btn-primary" @onclick="Added">Create Listener</button>
+</div>
+
+@code
+{
+	private string _ipAddress = string.Empty;
+    private string _newPort = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+
+    private async Task Added()
+    {
+        if (int.TryParse(_newPort.ToString(), out int port))
+        {
+            await listener.StartAsync(_ipAddress, port);
+        }
+        else
+        {
+            Console.WriteLine("Invalid port number!");
+        }
+    }
+}

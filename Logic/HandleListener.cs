@@ -1,44 +1,53 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
+
 
 namespace VoIPPresenter.Logic
 {
-  internal class HandleListener
+  /// <summary>
+  /// Class to handle the listener in C.
+  /// </summary>
+  public class HandleListener
   {
     [DllImport("VoIPListener.dll", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int main(int port_no);
+    private static extern int main(string ipAddress, int port_no);
 
-    /// <summary>
-    /// Runs the listener in C on a separate thread as to not block the main thread.
-    /// </summary>
-    /// <returns></returns>
-    internal static async Task Run()
+    [DllImport("VoIPListener.dll", CallingConvention = CallingConvention.Cdecl)]
+    private static extern int event_register(HandleReceivedData recDataEvent);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+
+    private delegate void HandleReceivedData(string data);
+
+    private ConcurrentDictionary<string, int> currentListeners = new ConcurrentDictionary<string, int>();
+
+    private void DataSentEvent(string data)
     {
-      HandleListener listener = new HandleListener();
-      await listener.StartAsync(514);
+
     }
+
+    public HandleListener() { }
 
     /// <summary>
     /// Starts the listener on a separate thread.
     /// </summary>
     /// <param name="portNo">Port number to listen on</param>
     /// <returns>True if the code executes properly</returns>
-    internal async Task<bool> StartAsync(int portNo)
+    public async Task<bool> StartAsync(string ipAddress, int portNo)
     {
       bool result = false;
+      HandleReceivedData handleReceivedData = new HandleReceivedData(DataSentEvent);
+      event_register(handleReceivedData);
+
       await Task.Run(() =>
       {
-        int listenResult = main(portNo);
-        if(listenResult == 0)
-        {
-          result = true;
-        }
+        int listenResult = main(ipAddress, portNo);
+        result = listenResult == 0;
       });
 
       return result;
     }
-
-
   }
 }

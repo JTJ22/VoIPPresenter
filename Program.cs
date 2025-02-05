@@ -15,6 +15,8 @@ namespace VoIPPresenter
       builder.Services.AddRazorComponents()
           .AddInteractiveServerComponents();
 
+      builder.Services.AddSingleton<HandleListener>();
+
       var app = builder.Build();
 
       // Configure the HTTP request pipeline.
@@ -32,6 +34,8 @@ namespace VoIPPresenter
 
       app.MapRazorComponents<App>()
           .AddInteractiveServerRenderMode();
+
+     
       app.Run();
     }
   }
