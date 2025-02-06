@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
-
+using System.Diagnostics;
 
 namespace VoIPPresenter.Logic
 {
@@ -21,7 +21,7 @@ namespace VoIPPresenter.Logic
 
     private delegate void HandleReceivedData(string data);
 
-    private ConcurrentDictionary<string, int> currentListeners = new ConcurrentDictionary<string, int>();
+    private ConcurrentDictionary<Guid, ActiveListener> currentListeners = new ConcurrentDictionary<Guid, ActiveListener>();
 
     private void DataSentEvent(string data)
     {
@@ -48,6 +48,31 @@ namespace VoIPPresenter.Logic
       });
 
       return result;
+    }
+
+    public async Task<bool> CreateWaveformAudio(string audioPath, string outputPath)
+    {
+      ProcessStartInfo startInfo = new ProcessStartInfo
+      {
+        FileName = "python",
+        Arguments = $"PythonScripts/GenerateImages.py \"{audioPath}\" \"{outputPath}\"",
+        UseShellExecute = false,
+        RedirectStandardOutput = true,
+        RedirectStandardError = true,
+        CreateNoWindow = true
+      };
+
+      using Process? process = Process.Start(startInfo);
+      string output = await process.StandardOutput.ReadToEndAsync();
+      string error = await process.StandardError.ReadToEndAsync();
+      process.WaitForExit();
+
+      if(process.ExitCode != 0)
+      {
+        Console.Error.WriteLine($"Python error: {error}");
+        return false;
+      }
+      return true;
     }
   }
 }

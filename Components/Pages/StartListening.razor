@@ -14,23 +14,27 @@
 
 @code
 {
-	private string _ipAddress = string.Empty;
+    private string _ipAddress = string.Empty;
     private string _newPort = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        
+        //await listener.CreateWaveformAudio(@"C:\Users\James\Desktop\Dissertation\VoIPPresenter\output_0.wav", @"C:\Users\James\Desktop\Dissertation\VoIPPresenter\wwwroot\images\hello");
     }
 
     private async Task Added()
     {
-        if (int.TryParse(_newPort.ToString(), out int port))
+        if(PortValid(out int portNo) && IpValid())
         {
-            await listener.StartAsync(_ipAddress, port);
+            await listener.StartAsync(_ipAddress, portNo);
         }
         else
         {
-            Console.WriteLine("Invalid port number!");
+            // Log errors
         }
     }
+
+    private bool PortValid(out int portNo) => int.TryParse(_newPort, out portNo) && portNo >= 0 && portNo <= 65535;
+
+	private bool IpValid() => IPAddress.TryParse(_ipAddress, out _);
 }
