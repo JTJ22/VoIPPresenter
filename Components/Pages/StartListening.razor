@@ -31,7 +31,7 @@
         if(PortValid(out int portNo) && IpValid())
         {
             newListener = new ActiveListener(_ipAddress, portNo);
-			listener.AddListener(newListener);
+            listener.AddListener(newListener);
         }
         else
         {
@@ -41,8 +41,25 @@
 
     private async Task Removed()
     {
-		newListener.Stop();
+        newListener.Stop();
 
+    }
+
+    private bool ValidListener()
+    {
+        return PortValid(out int portNo) && IpValid() && !DoesListenerExist(portNo);
+    }
+
+	private bool DoesListenerExist(int portNo)
+	{
+        foreach (KeyValuePair<Guid, ActiveListener> listener in listener.GetListeners())
+        {
+            if(listener.Value.portNo != portNo && listener.Value.ipAddress != _ipAddress)
+            {
+				return false;
+            }
+        }
+		return true;
     }
 
     private bool PortValid(out int portNo) => int.TryParse(_newPort, out portNo) && portNo >= 0 && portNo <= 65535;

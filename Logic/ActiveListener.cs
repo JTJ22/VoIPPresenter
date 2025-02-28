@@ -16,8 +16,12 @@ namespace VoIPPresenter.Logic
     private bool isActive;
     private Thread listenerThread;
     private IntPtr listenerParams;
+    public int portNo { get; set; }
+    public string ipAddress { get; set; }
     public ActiveListener(string ipAddress, int portNo)
     {
+      this.portNo = portNo;
+      this.ipAddress = ipAddress;
       isActive = true;
       listenerThread = new Thread(() => StartAsync(ipAddress, portNo));
       listenerThread.Start();
