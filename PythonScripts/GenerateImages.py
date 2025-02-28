@@ -1,4 +1,5 @@
-﻿import sys
+﻿import os
+import sys
 import librosa
 import librosa.display
 import matplotlib.pyplot as plt
@@ -13,7 +14,23 @@ def main(audio_path, output_path):
     plt.xlabel("Time (s)")
     plt.ylabel("Amplitude")
     plt.tight_layout()
-    plt.savefig(output_path)
+    wav_path = os.path.join(output_path, "wave")
+    plt.savefig(wav_path)
+    plt.close()
+
+
+    y, sr = librosa.load(audio_path)
+    D = librosa.stft(y)
+    S_db = librosa.amplitude_to_db(np.abs(D), ref=np.max)
+    plt.figure(figsize=(10, 6))
+    librosa.display.specshow(S_db, sr=sr, x_axis='time', y_axis='log')
+    plt.colorbar(format='%+2.0f dB')
+    plt.title('Spectrogram (Frequency over Time)')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Frequency (Hz)')
+    spec_path = os.path.join(output_path, "spec")
+    plt.savefig(spec_path)
+    plt.close()
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:

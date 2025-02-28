@@ -10,28 +10,39 @@
     <input id="portConf" type="text" name="portConf" size="30" placeholder="Port" @bind="_newPort" />
     <input id="ipConf" type="text" name="ipConf" size="30" placeholder="IP" @bind="_ipAddress" />
     <button class="btn btn-primary" @onclick="Added">Create Listener</button>
+    <button class="btn btn-primary" @onclick="Removed">Create Listener</button>
 </div>
+
+
 
 @code
 {
     private string _ipAddress = string.Empty;
     private string _newPort = string.Empty;
+    ActiveListener newListener;
 
     protected override async Task OnInitializedAsync()
     {
-        //await listener.CreateWaveformAudio(@"C:\Users\James\Desktop\Dissertation\VoIPPresenter\output_0.wav", @"C:\Users\James\Desktop\Dissertation\VoIPPresenter\wwwroot\images\hello");
+        // await listener.CreateWaveformAudio(@"C:\Users\James\Desktop\Dissertation\VoIPPresenter\output_0.wav", @"C:\Users\James\Desktop\Dissertation\VoIPPresenter\wwwroot\images");
     }
 
     private async Task Added()
-    {
+    {	
         if(PortValid(out int portNo) && IpValid())
         {
-            await listener.StartAsync(_ipAddress, portNo);
+            newListener = new ActiveListener(_ipAddress, portNo);
+			listener.AddListener(newListener);
         }
         else
         {
-            // Log errors
+
         }
+    }
+
+    private async Task Removed()
+    {
+		newListener.Stop();
+
     }
 
     private bool PortValid(out int portNo) => int.TryParse(_newPort, out portNo) && portNo >= 0 && portNo <= 65535;
