@@ -5,18 +5,49 @@
 
 <PageTitle>View Wavelenghts</PageTitle>
 
+<div>
+	<h3>Audio Player</h3>
+	<ul>
+		@foreach (string audioFile in _audio)
+		{
+			<li>
+				<audio controls>
+					<source src="@audioFile" type="audio/wav">
+					Your browser does not support the audio element.
+				</audio>
+			</li>
+		}
+	</ul>
+</div>
+
 <button class="btn btn-primary" @onclick="GenerateWavelengths">Generate Spectogram and Wavelengths</button>
+
+<div>
+	<h3>Images</h3>
+	<ul>
+		@foreach (string image in _images)
+		{
+			<li>
+				<img src="@image" alt="Generated Image" style="max-width: 100%; height: auto;">
+			</li>
+		}
+	</ul>
+</div>
 
 @code {
 	[Parameter] public string listenerGuid { get; set; }
 
 	private ActiveListener _listener;
+	private List<string> _images = new();
+	private List<string> _audio = new();
 
-	private string _imagePath = Path.Combine(Directory.GetCurrentDirectory(), "Images");
+	private string _imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
 
 	protected override async Task OnInitializedAsync()
 	{
 		_listener = listener.GetListener(Guid.Parse(listenerGuid));
+		_images = _listener.GetImages().Select(image => Path.Combine("images", Path.GetFileName(image))).ToList();
+		_audio = _listener.GetAudioFiles().Select(audio => Path.Combine("audio", new DirectoryInfo(Path.GetDirectoryName(audio)).Name, Path.GetFileName(audio))).ToList();
 	}
 
 	private async Task GenerateWavelengths()
@@ -36,6 +67,9 @@
 					await _listener.CreateWaveformAudio(path, _imagePath, uniqueName);
 				}
 			}
+			_images = _listener.GetImages().Select(image => Path.Combine("images", Path.GetFileName(image))).ToList();
 		}
 	}
+
+
 }

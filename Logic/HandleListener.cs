@@ -16,12 +16,24 @@ namespace VoIPPresenter.Logic
 
     public HandleListener() { }
 
+    /// <summary>
+    /// Creates a new listener and adds it to the dictionary.
+    /// </summary>
+    /// <param name="portNo">Port of the new listener</param>
+    /// <param name="ipAddress">IP of the new listener</param>
+    /// <returns>True if added</returns>
     public bool AddListener(int portNo, string ipAddress)
     {
       Guid newGuid = Guid.NewGuid();
       return currentListeners.TryAdd(newGuid, new ActiveListener(ipAddress, portNo));
     }
 
+    /// <summary>
+    /// Checks if the listener is already active. Will not start a new listener if one is already active.
+    /// </summary>
+    /// <param name="portNo">Port number of listener</param>
+    /// <param name="ipAddress">IP of new listener</param>
+    /// <returns>False if this does not exist</returns>
     public bool CheckCurrentListeners(int portNo, string ipAddress)
     {
       foreach(KeyValuePair<Guid, ActiveListener> listener in currentListeners)
@@ -34,7 +46,11 @@ namespace VoIPPresenter.Logic
       return true;
     }
 
-    public void StopListener(Guid listenerId)
+    /// <summary>
+    /// Stops the listener based on the ID.
+    /// </summary>
+    /// <param name="listenerId">ID of listener that needs to stop.</param>
+    public void StopListener(Guid listenerId) 
     {
       if(currentListeners.TryGetValue(listenerId, out ActiveListener? listener))
       {
@@ -42,19 +58,17 @@ namespace VoIPPresenter.Logic
       }
     }
 
-    public ConcurrentDictionary<Guid, ActiveListener> GetListeners()
-    {
-      return currentListeners;
-    }
+    /// <summary>
+    /// Returns a dictionary of all the current listeners.
+    /// </summary>
+    /// <returns>All current listeners</returns>
+    public ConcurrentDictionary<Guid, ActiveListener> GetListeners() => currentListeners;
 
-    public ActiveListener GetListener(Guid Id)
-    {
-      if(currentListeners.TryGetValue(Id, out ActiveListener? listener))
-      {
-        return listener;
-      }
-      return null;
-    }
-
+    /// <summary>
+    /// Gets a listener based on the ID.
+    /// </summary>
+    /// <param name="Id"></param>
+    /// <returns></returns>
+    public ActiveListener GetListener(Guid Id) => currentListeners.TryGetValue(Id, out ActiveListener listener) ? listener : null;
   }
 }

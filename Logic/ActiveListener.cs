@@ -5,6 +5,9 @@ using System.Runtime.InteropServices;
 namespace VoIPPresenter.Logic
 {
 
+  /// <summary>
+  /// Struct to hold the parameters for the listener. Unmanaged as these are used in C DLL. 
+  /// </summary>
   [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
   public struct socket_params
   {
@@ -14,6 +17,9 @@ namespace VoIPPresenter.Logic
     [MarshalAs(UnmanagedType.LPStr)]
     public string audio_path;
   }
+  /// <summary>
+  /// Class representing an active listener.
+  /// </summary>
   public class ActiveListener
   {
     public bool isActive { get; set; }
@@ -23,6 +29,13 @@ namespace VoIPPresenter.Logic
     public string ipAddress { get; set; }
     public string path { get; set; }
     private List<string> imageFiles = new();
+    private List<string> audioFiles = new();
+
+    /// <summary>
+    /// Constructor for the ActiveListener class. Starts the listener on a separate thread.
+    /// </summary>
+    /// <param name="ipAddress">IP being used to listen</param>
+    /// <param name="portNo">Port listening on</param>
     public ActiveListener(string ipAddress, int portNo)
     {
       this.portNo = portNo;
@@ -91,7 +104,7 @@ namespace VoIPPresenter.Logic
     {
       string baseDirectory = Directory.GetCurrentDirectory();
       string folderName = $"{ipAddress.Replace(".", "_")}_{portNo}_{DateTime.Now:yyyyMMdd_HHmmss}";
-      string path = Path.Combine(baseDirectory, "Audio", folderName);
+      string path = Path.Combine(baseDirectory, "wwwroot", "Audio", folderName);
 
       if(!Directory.Exists(path))
       {
@@ -145,6 +158,35 @@ namespace VoIPPresenter.Logic
       imageFiles.Add(imagePath);
     }
 
+    /// <summary>
+    /// Checks if an image exists.
+    /// </summary>
+    /// <param name="path">The path being checked, prevents duplication</param>
+    /// <returns>True if image exists</returns>
     public bool DoesImageExist(string path) => imageFiles.Contains(path);
+
+    /// <summary>
+    /// Returns the list of images.
+    /// </summary>
+    /// <returns>List of image directories</returns>
+    public List<string> GetImages() => imageFiles;
+
+    /// <summary>
+    /// Get the directories of all audio files.
+    /// </summary>
+    /// <returns>List of all audio files</returns>
+    public List<string> GetAudioFiles()
+    {
+      string[] files = Directory.GetFiles(path);
+      foreach(string paths in files)
+      {
+        if(!audioFiles.Contains(paths))
+        {
+          audioFiles.Add(paths);
+        }
+      }
+
+      return audioFiles;
+    }
   }
 }
