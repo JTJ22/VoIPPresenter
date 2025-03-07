@@ -1,18 +1,43 @@
 ﻿@page "/ViewConnections"
 @rendermode InteractiveServer
-@inject HandleListener listener
+@inject HandleListener listeners
+@inject NavigationManager navigationManager
 
 <PageTitle>View Connections</PageTitle>
 
+<h3>Active Listeners</h3>
 
+@if(listeners.GetListeners().Any())
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>IP Address</th>
+				<th>Port</th>
+				<th>Connections</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (KeyValuePair<Guid, ActiveListener> listener in listeners.GetListeners())
+			{
+				<tr class="@(listener.Value.isActive ? "table-success" : "")"
+					style="cursor: pointer;"
+					@onclick="@(() => OnRowClick(listener))">
+
+					<td>@listener.Value.ipAddress</td>
+					<td>@listener.Value.portNo</td>
+					<td>@(listener.Value.isActive ? "Active" : "Inactive")</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+else
+{
+	<p>No active listeners</p>
+}
 
 @code {
 
-	private void ShowConnections()
-	{
-		foreach(KeyValuePair<Guid, ActiveListener> listener in listener.GetListeners())
-		{
-			
-		}
-	}
+	private void OnRowClick(KeyValuePair<Guid, ActiveListener> listener) => navigationManager.NavigateTo($"/ViewWavelengths/{listener.Key.ToString()}");
 }

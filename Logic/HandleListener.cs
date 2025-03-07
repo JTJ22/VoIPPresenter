@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Net;
 
 namespace VoIPPresenter.Logic
 {
@@ -15,15 +16,45 @@ namespace VoIPPresenter.Logic
 
     public HandleListener() { }
 
-    public bool AddListener(ActiveListener listener)
+    public bool AddListener(int portNo, string ipAddress)
     {
       Guid newGuid = Guid.NewGuid();
-      return currentListeners.TryAdd(newGuid, listener);
+      return currentListeners.TryAdd(newGuid, new ActiveListener(ipAddress, portNo));
+    }
+
+    public bool CheckCurrentListeners(int portNo, string ipAddress)
+    {
+      foreach(KeyValuePair<Guid, ActiveListener> listener in currentListeners)
+      {
+        if(listener.Value.portNo != portNo && listener.Value.ipAddress != ipAddress && !listener.Value.isActive)
+        {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    public void StopListener(Guid listenerId)
+    {
+      if(currentListeners.TryGetValue(listenerId, out ActiveListener? listener))
+      {
+        listener.StopCall();
+      }
     }
 
     public ConcurrentDictionary<Guid, ActiveListener> GetListeners()
     {
       return currentListeners;
     }
+
+    public ActiveListener GetListener(Guid Id)
+    {
+      if(currentListeners.TryGetValue(Id, out ActiveListener? listener))
+      {
+        return listener;
+      }
+      return null;
+    }
+
   }
 }

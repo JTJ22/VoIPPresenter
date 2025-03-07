@@ -1,9 +1,41 @@
-﻿@page "/ViewWavelengths"
+﻿@page "/ViewWavelengths/{listenerGuid}"
 @rendermode InteractiveServer
 @inject HandleListener listener
+@inject NavigationManager navigationManager
 
 <PageTitle>View Wavelenghts</PageTitle>
 
+<button class="btn btn-primary" @onclick="GenerateWavelengths">Generate Spectogram and Wavelengths</button>
+
 @code {
-	
+	[Parameter] public string listenerGuid { get; set; }
+
+	private ActiveListener _listener;
+
+	private string _imagePath = Path.Combine(Directory.GetCurrentDirectory(), "Images");
+
+	protected override async Task OnInitializedAsync()
+	{
+		_listener = listener.GetListener(Guid.Parse(listenerGuid));
+	}
+
+	private async Task GenerateWavelengths()
+	{
+		if (Directory.Exists(_listener.path))
+		{
+			string[] files = Directory.GetFiles(_listener.path);
+			foreach (string path in files)
+			{
+				string fileName = Path.GetFileNameWithoutExtension(path);
+				string outNum = fileName.Split("_").Last();
+				string halfGuid = listenerGuid.Replace("-", "_").Substring(0, listenerGuid.Length / 2);
+				string uniqueName = $"{halfGuid}_{outNum}";
+
+				if (!_listener.DoesImageExist(uniqueName))
+				{
+					await _listener.CreateWaveformAudio(path, _imagePath, uniqueName);
+				}
+			}
+		}
+	}
 }

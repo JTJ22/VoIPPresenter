@@ -10,7 +10,6 @@
     <input id="portConf" type="text" name="portConf" size="30" placeholder="Port" @bind="_newPort" />
     <input id="ipConf" type="text" name="ipConf" size="30" placeholder="IP" @bind="_ipAddress" />
     <button class="btn btn-primary" @onclick="Added">Create Listener</button>
-    <button class="btn btn-primary" @onclick="Removed">Create Listener</button>
 </div>
 
 
@@ -19,19 +18,13 @@
 {
     private string _ipAddress = string.Empty;
     private string _newPort = string.Empty;
-    ActiveListener newListener;
 
-    protected override async Task OnInitializedAsync()
-    {
-        // await listener.CreateWaveformAudio(@"C:\Users\James\Desktop\Dissertation\VoIPPresenter\output_0.wav", @"C:\Users\James\Desktop\Dissertation\VoIPPresenter\wwwroot\images");
-    }
-
-    private async Task Added()
+    private void Added()
     {	
+
         if(PortValid(out int portNo) && IpValid())
         {
-            newListener = new ActiveListener(_ipAddress, portNo);
-            listener.AddListener(newListener);
+            listener.AddListener(portNo, _ipAddress);
         }
         else
         {
@@ -39,28 +32,9 @@
         }
     }
 
-    private async Task Removed()
-    {
-        newListener.Stop();
+    private bool ValidListener() => PortValid(out int portNo) && IpValid() && !DoesListenerExist(portNo);
 
-    }
-
-    private bool ValidListener()
-    {
-        return PortValid(out int portNo) && IpValid() && !DoesListenerExist(portNo);
-    }
-
-	private bool DoesListenerExist(int portNo)
-	{
-        foreach (KeyValuePair<Guid, ActiveListener> listener in listener.GetListeners())
-        {
-            if(listener.Value.portNo != portNo && listener.Value.ipAddress != _ipAddress)
-            {
-				return false;
-            }
-        }
-		return true;
-    }
+    private bool DoesListenerExist(int portNo) => listener.CheckCurrentListeners(portNo, _ipAddress);   
 
     private bool PortValid(out int portNo) => int.TryParse(_newPort, out portNo) && portNo >= 0 && portNo <= 65535;
 
