@@ -6,33 +6,56 @@
 <PageTitle>View Wavelenghts</PageTitle>
 
 <div>
-	<h3>Audio Player</h3>
-	<ul>
-		@foreach (string audioFile in _audio)
-		{
-			<li>
-				<audio controls>
-					<source src="@audioFile" type="audio/wav">
-					Your browser does not support the audio element.
-				</audio>
-			</li>
-		}
-	</ul>
+	<h3>Listener Information</h3>
+	<p><strong>IP Address: </strong>@_listener.ipAddress</p>
+	<p><strong>Port: </strong>@_listener.portNo</p>
+	<p><strong>Status: </strong>@(_listener.isActive ? "Active" : "Inactive")</p>
 </div>
 
 <button class="btn btn-primary" @onclick="GenerateWavelengths">Generate Spectogram and Wavelengths</button>
 
-<div>
-	<h3>Images</h3>
-	<ul>
-		@foreach (string image in _images)
-		{
-			<li>
-				<img src="@image" alt="Generated Image" style="max-width: 100%; height: auto;">
-			</li>
-		}
-	</ul>
-</div>
+<button class="btn btn-primary" @onclick="StopListening">Stop Listening</button>
+
+@if (_audio.Any())
+{
+	<div>
+		<h3>Audio Player</h3>
+		<ul>
+			@foreach (string audioFile in _audio)
+			{
+				<li>
+					<audio controls>
+						<source src="@audioFile" type="audio/wav">
+						Your browser does not support the audio element.
+					</audio>
+				</li>
+			}
+		</ul>
+	</div>
+}
+else
+{
+	<p>No audio files found</p>
+}
+
+@if (_images.Any())
+{
+	<div>
+		<h3>Images</h3>
+		<ul>
+			@foreach (string image in _images)
+			{
+				<li>
+					<img src="@image" alt="Generated Image" style="max-width: 100%; height: auto;">
+				</li>
+			}
+		</ul>
+	</div>
+}
+else
+{
+	<p>No images found</p>
+}
 
 @code {
 	[Parameter] public string listenerGuid { get; set; }
@@ -71,5 +94,8 @@
 		}
 	}
 
-
+	private void StopListening()
+	{
+		listener.StopListener(Guid.Parse(listenerGuid));
+	}
 }

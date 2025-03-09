@@ -52,7 +52,7 @@ namespace VoIPPresenter.Logic
     /// <param name="listenerId">ID of listener that needs to stop.</param>
     public void StopListener(Guid listenerId) 
     {
-      if(currentListeners.TryGetValue(listenerId, out ActiveListener? listener))
+      if(currentListeners.TryGetValue(listenerId, out ActiveListener? listener) && listener.isActive)
       {
         listener.StopCall();
       }

@@ -20,7 +20,7 @@
 		<tbody>
 			@foreach (KeyValuePair<Guid, ActiveListener> listener in listeners.GetListeners())
 			{
-				<tr class="@(listener.Value.isActive ? "table-success" : "")"
+				<tr class="@(listener.Value.isActive ? "table-success" : "table-danger")"
 					style="cursor: pointer;"
 					@onclick="@(() => OnRowClick(listener))">
 
