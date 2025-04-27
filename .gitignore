@@ -392,3 +392,5 @@ FodyWeavers.xsd
 /wwwroot/Audio/127_0_0_1_514_20250309_231515
 /wwwroot/Audio/127_0_0_1_514_20250309_231515/output_0.wav
 /wwwroot/images
+/latency_log.csv
+/resource_log.csv
