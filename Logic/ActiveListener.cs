@@ -17,6 +17,7 @@ namespace VoIPPresenter.Logic
     [MarshalAs(UnmanagedType.LPStr)]
     public string audio_path;
   }
+
   /// <summary>
   /// Class representing an active listener.
   /// </summary>
@@ -67,7 +68,7 @@ namespace VoIPPresenter.Logic
     private void StartAsync(string ipAddress, int portNo)
     {
       listenerParams = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(socket_params)));
-      Marshal.StructureToPtr(new socket_params { ip_address = ipAddress, port_number = portNo, audio_path = path }, listenerParams, false);
+      Marshal.StructureToPtr(new socket_params {ip_address = ipAddress, port_number = portNo, audio_path = path}, listenerParams, false);
 
       main(listenerParams);
     }
@@ -155,7 +156,10 @@ namespace VoIPPresenter.Logic
     /// <param name="imagePath">Path of the image to add</param>
     public void AddImage(string imagePath)
     {
-      imageFiles.Add(imagePath);
+      if(!DoesImageExist(imagePath))
+      {
+        imageFiles.Add(imagePath);
+      }
     }
 
     /// <summary>

@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject HandleListener listener
 @inject NavigationManager navigationManager
+@inject IJSRuntime jsRuntime
 
 <PageTitle>View Wavelenghts</PageTitle>
 
@@ -75,10 +76,12 @@ else
 
 	private async Task GenerateWavelengths()
 	{
-		if (Directory.Exists(_listener.path))
+		System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+		if(Directory.Exists(_listener.path))
 		{
 			string[] files = Directory.GetFiles(_listener.path);
-			foreach (string path in files)
+			foreach(string path in files)
 			{
 				string fileName = Path.GetFileNameWithoutExtension(path);
 				string outNum = fileName.Split("_").Last();
@@ -92,6 +95,10 @@ else
 			}
 			_images = _listener.GetImages().Select(image => Path.Combine("images", Path.GetFileName(image))).ToList();
 		}
+
+		stopwatch.Stop();
+		var renderTime = stopwatch.ElapsedMilliseconds;
+		await jsRuntime.InvokeVoidAsync("console.log", $"[Blazor] Spectrogram generated in {renderTime} ms");
 	}
 
 	private void StopListening()
